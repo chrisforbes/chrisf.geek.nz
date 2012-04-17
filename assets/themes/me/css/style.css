@@ -1,5 +1,6 @@
 html, body {
 	background-color: #eee;
+	font-family: sans
 }
 
 body { padding: 0; margin: 0 }
@@ -15,20 +16,28 @@ div.content {
 
 .navbar-inner {
 	position: absolute;
-	left: 40px;
-	width: 150px;
+	left: 15px;
+	width: 180px;
 	background-color: red;
 	padding: 5px;
-	border-top: 35px 
+	border-top: 90px solid black;
 }
 
 pre {
 	background-color: #eee; margin: 0px 10px 10px 10px; padding: 10px
 }
 
+code {
+	background-color: #eee; padding: 2px
+}
+
 .page-header {
 	background-color: #ccc;
 	margin-left: -30px;
 	margin-right: -15px;
-	padding: 5px
+	padding: 5px;
+	padding-left: 30px;
+	height: 80px
 }
+
+.navbar a { color: white; }
