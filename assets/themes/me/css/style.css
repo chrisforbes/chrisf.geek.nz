@@ -1,0 +1,34 @@
+html, body {
+	background-color: #eee;
+}
+
+body { padding: 0; margin: 0 }
+
+body > div.container { width: 800px; padding-left: 200px }
+div.content {
+	background-color: #fff;
+	border-left: 5px solid red;
+	padding-left: 30px;
+	padding-right: 15px;
+	padding-bottom: 15px;
+}
+
+.navbar-inner {
+	position: absolute;
+	left: 40px;
+	width: 150px;
+	background-color: red;
+	padding: 5px;
+	border-top: 35px 
+}
+
+pre {
+	background-color: #eee; margin: 0px 10px 10px 10px; padding: 10px
+}
+
+.page-header {
+	background-color: #ccc;
+	margin-left: -30px;
+	margin-right: -15px;
+	padding: 5px
+}
