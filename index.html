@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Home - chrisf.geek.nz</title>
+    <link rel="stylesheet" href="/style.css">
+
+    <!-- coderwall integration junk -->
+    <link href="http://coderwall.com/stylesheets/jquery.coderwall.css" media="all" rel="stylesheet" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  </head>
+  <body>
+    <div id="main">
+      <h2 id="chrisfgeeknz">chrisf.geek.nz</h2>
+
+<p>I don’t want to maintain a blog any more – I’d rather use that time building actual software, so this is just a view into my work pipeline:</p>
+
+<h3 id="done">DONE:</h3>
+
+<h4 id="arbtexturemultisample----core-mesa-and-i965-support-merged-in-mesa-92-for-gl32">ARB_texture_multisample – core mesa and i965 support (Merged in Mesa 9.2; for GL3.2)</h4>
+<p>Adds support for rendering into and sampling from multisample textures. This makes it possible to do custom MSAA resolves, like in DX10.</p>
+
+<p>Also interesting for implementing some order-independent-transparency techniques – in Stencil-Routed K-Buffering, for example a multisample target is used to accumulate layers of rendered fragments (using clever stencil masking, and with multisample rasterization disabled) which are then sorted and blended in a resolve pass.</p>
+
+<h4 id="arbtexturecubemaparray----i965-support-merged-in-mesa-91-for-gl40">ARB_texture_cube_map_array – i965 support (Merged in Mesa 9.1; for GL4.0)</h4>
+<p>Adds support for arrays of cubemaps – useful for things like grids of environment probes, while using only one sampler.</p>
+
+<p>Dave Airlie had already done all the core work for this; my bits were just adding support for the i965 driver, which involved working around the quirks of the hardware resinfo message.</p>
+
+<h4 id="arbvertextype2101010rev----i965-support-merged-in-mesa-91-for-gl33">ARB_vertex_type_2_10_10_10_rev – i965 support (Merged in Mesa 9.1; for GL3.3)</h4>
+<p>Adds support for this packed vertex attribute format, which gives you 10 bits of RGB precision and 2 bits of alpha, packed into a 32bit word.</p>
+
+<p>Interesting to implement on i965 because the hardware support for most of these types is missing or broken, so the vertex shader has to do a lot of workarounds.</p>
+
+<h3 id="still-in-the-pipeline">Still in the pipeline:</h3>
+
+<h4 id="arbinternalformatquery-interactions-with-limit-checks-in-review-for-mesa-92-for-gl42">ARB_internalformat_query interactions with limit checks (In review; for Mesa 9.2; for GL4.2)</h4>
+<p>Implements the changes required by internalformat_query in the sample count limit checks in glRenderbufferStorageMultisample() and glTex*Multisample().</p>
+
+<p>Addresses FDO bug #61774.</p>
+
+<h4 id="arbtexturestoragemultisample----core-mesa-and-i965-support-in-review-for-mesa-92-for-gl43">ARB_texture_storage_multisample – core mesa and i965 support (In review; for Mesa 9.2; for GL4.3)</h4>
+<p>Adds support for immutable-format multisample textures, and some support for using multisample texture targets with gl[Get]TexParameter*(). This mostly just cleans up some nonorthogonality.</p>
+
+<p>When we get support for ARB_texture_view, this becomes actually useful – texture views can only be made from immutable-format textures.</p>
+
+<h3 id="stuff-id-like-to-build-in-a-rough-priority-order">Stuff I’d like to build, in a rough priority order:</h3>
+
+<h4 id="arbtexturegather">ARB_texture_gather</h4>
+<p>Maxence Le Dore sent a patch to the mailing list ages ago for adding support for this, but it was fairly spotty and missed the i965 support. I’d like to finish it off and do the i965 enabling – Sandybridge can do the more limited form of this extension, and Ivybridge can do the whole thing.</p>
+
+<h4 id="glsl-130-on-cantiga-ironlake">GLSL 1.30 on Cantiga, Ironlake</h4>
+<p>This needs to happen for Team Fortress 2 to work. Ref FDO bug #59187.</p>
+
+<h4 id="core-profile-subset-of-extdirectstateaccess">Core profile subset of EXT_direct_state_access</h4>
+<p>This extension makes GL much less error-prone. The full thing is pretty nuts – legacy matrix stack junk, etc – but the subset that makes sense in the core profile is probably not too bad, and would allow some nice cleanups in app code. NV/AMD already expose this, Mesa is the last big implementation not to.</p>
+
+<h4 id="arbtexturequerylod">ARB_texture_query_lod</h4>
+<p>Just another small GLSL change which ought to be straightforward.</p>
+
+<h4 id="arbtextureview">ARB_texture_view</h4>
+<p>This allows texture objects to share their backing image data, but have different (compatible) internalformats. Looks easy enough to do.</p>
+
+<h4 id="arbshaderatomiccounters">ARB_shader_atomic_counters</h4>
+<p>This is real GL4.x stuff – atomic read/increment/decrement of counters within a buffer object. I can see how to do this on at least Ivybridge; it’s possible that Sandybridge has all the required machinery as well. Eric’s shadertime support is a useful example – ARB_shader_atomic_counters is similar but exposes this machinery to the GL app.</p>
+
+<h4 id="layered-framebuffer-attachment-support">Layered framebuffer attachment support</h4>
+<p>This is one of the neat things we get with geometry shader support in 3.2; an entire complex texture (cubemap, or array texture) can be bound as a framebuffer attachment, and the GS can direct primitives to particular layers.</p>
+
+<p>There’s an AMD vendor extension for allowing the VS to direct primitives [following the provoking vertex convention] to a particular layer which might be implementable in lieu of having real GS support, but the layered rendering machinery would need to be extracted from the GS extensions (or GL3.2) where it’s currently defined.</p>
+
+    </div>
+    <div id="sidebar">
+      <h2>chrisf.geek.nz</h2>
+      <ul>
+        <li>Free software developer</li>
+        <li>Perl, Python, C, C++, C#, GLSL, SQL</li>
+        <li>Cranky <a href="http://open-ra.org">OpenRA</a> maintainer</li>
+        <li>Graphics driver guy</li>
+        <li>Proud kiwi</li>
+        <li>Private pilot</li>
+      </ul>
+      <h2>Elsewhere</h2>
+      <ul>
+        <li>on <a href="http://github.com/chrisforbes">Github</a></li>
+        <li>chrisf on <a href="irc://chat.freenode.net/#openra">Freenode</a></li>
+        <li><a href="mailto:chrisf@ijw.co.nz">Email</a></li>
+        <a href='https://www.ohloh.net/accounts/114913?ref=Detailed' target='_blank'>
+          <img alt='Ohloh profile for Chris Forbes' border='0' src='https://www.ohloh.net/accounts/114913/widgets/account_detailed.gif' width='200' />
+        </a>
+      </ul>
+        <div class="coderwall" data-coderwall-username="chrisforbes" data-coderwall-orientation="horizontal"></div>
+    </div>
+  </body>
+</html>
