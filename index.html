@@ -56,9 +56,6 @@
 <h4 id="core-profile-subset-of-extdirectstateaccess">Core profile subset of EXT_direct_state_access</h4>
 <p>This extension makes GL much less error-prone. The full thing is pretty nuts – legacy matrix stack junk, etc – but the subset that makes sense in the core profile is probably not too bad, and would allow some nice cleanups in app code. NV/AMD already expose this, Mesa is the last big implementation not to.</p>
 
-<h4 id="arbtexturequerylod">ARB_texture_query_lod</h4>
-<p>Just another small GLSL change which ought to be straightforward.</p>
-
 <h4 id="arbtextureview">ARB_texture_view</h4>
 <p>This allows texture objects to share their backing image data, but have different (compatible) internalformats. Looks easy enough to do.</p>
 
