@@ -33,12 +33,12 @@
 
 <p>Interesting to implement on i965 because the hardware support for most of these types is missing or broken, so the vertex shader has to do a lot of workarounds.</p>
 
-<h3 id="still-in-the-pipeline">Still in the pipeline:</h3>
-
-<h4 id="arbinternalformatquery-interactions-with-limit-checks-in-review-for-mesa-92-for-gl42">ARB_internalformat_query interactions with limit checks (In review; for Mesa 9.2; for GL4.2)</h4>
+<h4 id="arbinternalformatquery-interactions-with-limit-checks-merged-in-mesa-92-for-gl42">ARB_internalformat_query interactions with limit checks (Merged in Mesa 9.2; for GL4.2)</h4>
 <p>Implements the changes required by internalformat_query in the sample count limit checks in glRenderbufferStorageMultisample() and glTex*Multisample().</p>
 
 <p>Addresses FDO bug #61774.</p>
+
+<h3 id="still-in-the-pipeline">Still in the pipeline:</h3>
 
 <h4 id="arbtexturestoragemultisample----core-mesa-and-i965-support-in-review-for-mesa-92-for-gl43">ARB_texture_storage_multisample – core mesa and i965 support (In review; for Mesa 9.2; for GL4.3)</h4>
 <p>Adds support for immutable-format multisample textures, and some support for using multisample texture targets with gl[Get]TexParameter*(). This mostly just cleans up some nonorthogonality.</p>
