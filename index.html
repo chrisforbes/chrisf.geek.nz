@@ -38,17 +38,18 @@
 
 <p>Addresses FDO bug #61774.</p>
 
-<h3 id="still-in-the-pipeline">Still in the pipeline:</h3>
-
-<h4 id="arbtexturestoragemultisample----core-mesa-and-i965-support-in-review-for-mesa-92-for-gl43">ARB_texture_storage_multisample – core mesa and i965 support (In review; for Mesa 9.2; for GL4.3)</h4>
+<h4 id="arbtexturestoragemultisample----core-mesa-and-i965-support-merged-in-mesa-92-for-gl43">ARB_texture_storage_multisample – core mesa and i965 support (Merged in Mesa 9.2; for GL4.3)</h4>
 <p>Adds support for immutable-format multisample textures, and some support for using multisample texture targets with gl[Get]TexParameter*(). This mostly just cleans up some nonorthogonality.</p>
 
 <p>When we get support for ARB_texture_view, this becomes actually useful – texture views can only be made from immutable-format textures.</p>
 
-<h3 id="stuff-id-like-to-build-in-a-rough-priority-order">Stuff I’d like to build, in a rough priority order:</h3>
+<h3 id="still-in-the-pipeline">Still in the pipeline:</h3>
 
-<h4 id="arbtexturegather">ARB_texture_gather</h4>
-<p>Maxence Le Dore sent a patch to the mailing list ages ago for adding support for this, but it was fairly spotty and missed the i965 support. I’d like to finish it off and do the i965 enabling – Sandybridge can do the more limited form of this extension, and Ivybridge can do the whole thing.</p>
+<h4 id="arbtexturegather-in-review-for-mesa-92-for-gl40">ARB_texture_gather (In review; for Mesa 9.2; for GL4.0)</h4>
+
+<p>So far, I have the Ivybridge stuff mostly behaving itself; Sandybridge is full of weird restrictions so it might not fly at all.</p>
+
+<h3 id="stuff-id-like-to-build-in-a-rough-priority-order">Stuff I’d like to build, in a rough priority order:</h3>
 
 <h4 id="glsl-130-on-cantiga-ironlake">GLSL 1.30 on Cantiga, Ironlake</h4>
 <p>This needs to happen for Team Fortress 2 to work. Ref FDO bug #59187.</p>
