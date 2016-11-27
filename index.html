@@ -51,6 +51,7 @@
 <li>Renderer stuff: Efficient mesh -&gt; discrete signed distance field algorithms? I can think of a few ways to do this, but not seen good papers on efficient approaches.</li>
 <li>Renderer stuff: Short raytrace against depth buffer is probably the right thing for contact shadows. Don't want to do this for the full depth; just to bridge the gap between the traditional shadowmap and the surface, where we had to bias the shadow away.</li>
 <li>Implement CS fine culling of meshes -- lots of good ideas in <a href="http://www.slideshare.net/gwihlidal/optimizing-the-graphics-pipeline-with-compute-gdc-2016">Optimizing the Graphics Pipeline with Compute</a> presentation from GDC2016</li>
+<li>GL: as an extension of the other idea on DU marking in the NIR, we can /possibly/ extend its reach a little further -- when a non-marked ssavalue  is used in a context that the spec requires to be DU, we could mark it. If that marking would be invalid, then the shader is invalid so no foul. This would require a fair bit of validation to make sure it's actually safe...</li>
 </ul>
 
 
