@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>Home - chrisf.geek.nz</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="style.css">
 
     <!-- coderwall integration junk -->
     <link href="http://coderwall.com/stylesheets/jquery.coderwall.css" media="all" rel="stylesheet" type="text/css">
@@ -14,76 +14,62 @@
     <div id="main">
       <h2 id="chrisfgeeknz">chrisf.geek.nz</h2>
 
-<p>I don’t want to maintain a blog any more – I’d rather use that time building actual software, so this is just a view into my work pipeline:</p>
+<p>Somewhere between a TODO list and a pile of notes.</p>
 
 <h3 id="done">DONE:</h3>
 
-<h4 id="arbtexturemultisample----core-mesa-and-i965-support-merged-in-mesa-92-for-gl32">ARB_texture_multisample – core mesa and i965 support (Merged in Mesa 9.2; for GL3.2)</h4>
-<p>Adds support for rendering into and sampling from multisample textures. This makes it possible to do custom MSAA resolves, like in DX10.</p>
+<ul>
+<li>GL: ARB_texture_view -- done in Mesa 10.x. Reinterpret the texels of a texture as a related internalformat. Contrains the choices of texture format a bit internally.</li>
+<li>GL: ARB_texture_gather -- done in Mesa 10.x. Returns one component's values from each texel of the bilinear filter footprint. This is useful for various shader tricks. Note: GS5 version of this allows complex offsetting [like textureOffset, but worse], channel selection [which is broken in subtle ways on IVB/HSW], etc. SNB support for the minimal subset is OK, but requires hacks -- various formats are broken in HW and need to be interpreted as UINT instead to get correct results.</li>
+<li>GL: Dynamically-uniform indexing of samplers and uniform buffers -- done in Mesa 10.x. Previously arrays of samplers  / arrays of blocks could only be indexed with constant expressions. In GL4 [ARB_gpu_shader5] this is relaxed to allow general indexing as long as all invocations executing together use the same index. Note: precise definition of DU in the spec is murky, but this is the hardware reality: these values are in the message header / descriptor rather than in the per-channel payload.</li>
+<li>GL: ARB_vertex_type_10f_11f_11f_rev -- done in 10.x.<br/> This isn't very interesting -- just another format that's been supported forever as a texture format, allowed in the vertex pipe.</li>
+<li>GL: Fix MRT alphatest on pre-SNB -- done in Mesa 10.x.<br/> Note: RT0 alpha controls alphatest for all RTs. On SNB+ there is a phase in the RT write payload for src0 alpha to accomodate this. On earlier gens, we have to do emulate MRT alphatest in the shader instead.</li>
+<li>GL: ARB_texture_multisample -- done in Mesa 9.2. This allows custom MSAA resolves, like in DX10; also a number of OIT techniques, although Gen is too starved for memory bandwidth to make this really work.</li>
+<li>GL: ARB_texture_cube_map_array -- done in Mesa 9.1.</li>
+<li>GL: ARB_vertex_type_2_10_10_10_rev -- done in Mesa 9.1.</li>
+<li>GL: ARB_internalformat_query + limits -- done in Mesa 9.2.</li>
+<li>GL: ARB_texture_storage_multisample -- done in Mesa 9.2</li>
+<li>GL: Rework user clipping support [1.2 gl_ClipVertex, 1.3 gl_ClipDistance[]] for pre-SNB to use clip distances always. <br/> Note: These gens have programmable clipping + setup stages. The driver provides the shaders to use here. Most other hardware does this in silicon.</li>
+<li>GL: ARB_tessellation_shader -- poured piles of work into this, cleaning up the work done by a GSoC student. Eventually picked up by Ken and finished for 11.x. This extension is huge and crazy!</li>
+<li>GL: ARB_viewport_array on SNB -- even though this is a 4.x thing, there's no reason this hw can't support it. Done.</li>
+<li>Vulkan: tech review on "Learning Vulkan", Parminder Singh. [Previously titled 'Vulkan Essentials']</li>
+</ul>
 
-<p>Also interesting for implementing some order-independent-transparency techniques – in Stencil-Routed K-Buffering, for example a multisample target is used to accumulate layers of rendered fragments (using clever stencil masking, and with multisample rasterization disabled) which are then sorted and blended in a resolve pass.</p>
+<h3 id="todo">Not done, or in progress, or interesting:</h3>
+<ul>
+<li>GL: ARB_fragment_shader_interlock / INTEL_fragment_shader_ordering / "PixelSync" / ROV -- experimental branch exists. Idea is to use HW thread dependencies to resolve hazards on UAV access, which enables efficient OIT techniques, custom blends in the shader, etc. SNB+ already use 'sendc' [send message after waiting for thread dependencies to retire] to order RT writes [there is no magical mechanism in Gen for ROP ordering! On 4-5 PS dispatch would stall; on 6+ we have to use sendc to resolve]. Entering the critical section is then just issuing a 'sendc' earlier in the shader. Leaving the critical section, while included in ARB_fragment_shader_interlock, is a noop on this hw -- we've already waited for the interesting threads to retire.</li>
+<li>GL: INTEL_conservative_rasterization -- experimental branch exists. Stalling this on internal Intel folks landing their ARB_post_depth_coverage implementation, since this involves frobbing the same fields in the hw state. Experimental branch exists -- the actual change is trivial.</li>
+<li>GL: ARB_texture_filter_minmax -- take min or max of texels under the footprint rather than weighted blend. Implementation is straightforward, experimental patches exist. Like most extensions, the hard work is all in writing a bunch of tests to make sure it actually works, not programming the hw!</li>
+<li>GL: Annotate the NIR with whether each quantity is DU, and narrow the storage + operations if so. This is roughly like pushing things into the GCN SGPRs, and using the scalar pipe to do the work. On i965 I expect some good improvement from this in terms of register pressure, esp in SIMD16/SIMD32 modes. Also opens the door to doing things like atomics smarter: Gen is really poor at high-contention atomics-- SW is supposed to narrow to scalar when it can prove that the addresses for all channels are the same. Other possible wins in find-live-channel plumbing -- if we're already in provably-DU land, then we don't need to hunt around for a live channel; we already know there's only one interesting channel.</li>
+<li>Finish NZ CPL? I'm thinking I probably don't have time now before I leave.</li>
+<li>Vulkan: tech review on "Vulkan Cookbook", ongoing.</li>
+<li>Vulkan: community driver for Adreno? 3xx should be able to support it, but no QCOM driver exists. 4xx/5xx have a vendor driver, but closed and annoying to work with.</li>
+<li>Do some ARMv8 enabling work for rpi3?</li>
+<li>Renderer stuff: Implement <a href="http://graphics.cs.williams.edu/papers/TransparencyI3D16/McGuire2016Transparency.pdf">Morgan McGuire's Phenomenological Transparency paper</a>. Transparent shadow support is too expensive as described -- can we cheat in some interesting ways?</li>
+<li>Data compression: Don't just split statistics, split bitstreams! Undo entropy step in parallel across all the bitstreams for a chunk. I think this is what the RAD guys might be talking about when they say "thread-phased decode". Payoff untested, but sounds like an obvious win. Some framing cost.</li>
+<li>Data compression: <a href="https://arxiv.org/pdf/1311.2540v2.pdf">rANS</a> &gt; binary range coders. Efficient 3-4bit sym / 12-15bit prob / fully adaptive coder implementations exist via SIMD. Adaptive /encode/ is made of wrinkles, though -- have to model forward, encode backward, to allow decoder to work. Mixing other 'data' context bits makes things awful. Mixing 'control' context bits [like LZMA state machine] is alright; we can arrange to have done the control bits stream earlier in decode.</li>
+<li>Renderer stuff: Efficient mesh -&gt; discrete signed distance field algorithms? I can think of a few ways to do this, but not seen good papers on efficient approaches.</li>
+<li>Renderer stuff: Short raytrace against depth buffer is probably the right thing for contact shadows. Don't want to do this for the full depth; just to bridge the gap between the traditional shadowmap and the surface, where we had to bias the shadow away.</li>
+<li>Implement CS fine culling of meshes -- lots of good ideas in <a href="http://www.slideshare.net/gwihlidal/optimizing-the-graphics-pipeline-with-compute-gdc-2016">Optimizing the Graphics Pipeline with Compute</a> presentation from GDC2016</li>
+</ul>
 
-<h4 id="arbtexturecubemaparray----i965-support-merged-in-mesa-91-for-gl40">ARB_texture_cube_map_array – i965 support (Merged in Mesa 9.1; for GL4.0)</h4>
-<p>Adds support for arrays of cubemaps – useful for things like grids of environment probes, while using only one sampler.</p>
-
-<p>Dave Airlie had already done all the core work for this; my bits were just adding support for the i965 driver, which involved working around the quirks of the hardware resinfo message.</p>
-
-<h4 id="arbvertextype2101010rev----i965-support-merged-in-mesa-91-for-gl33">ARB_vertex_type_2_10_10_10_rev – i965 support (Merged in Mesa 9.1; for GL3.3)</h4>
-<p>Adds support for this packed vertex attribute format, which gives you 10 bits of RGB precision and 2 bits of alpha, packed into a 32bit word.</p>
-
-<p>Interesting to implement on i965 because the hardware support for most of these types is missing or broken, so the vertex shader has to do a lot of workarounds.</p>
-
-<h4 id="arbinternalformatquery-interactions-with-limit-checks-merged-in-mesa-92-for-gl42">ARB_internalformat_query interactions with limit checks (Merged in Mesa 9.2; for GL4.2)</h4>
-<p>Implements the changes required by internalformat_query in the sample count limit checks in glRenderbufferStorageMultisample() and glTex*Multisample().</p>
-
-<p>Addresses FDO bug #61774.</p>
-
-<h4 id="arbtexturestoragemultisample----core-mesa-and-i965-support-merged-in-mesa-92-for-gl43">ARB_texture_storage_multisample – core mesa and i965 support (Merged in Mesa 9.2; for GL4.3)</h4>
-<p>Adds support for immutable-format multisample textures, and some support for using multisample texture targets with gl[Get]TexParameter*(). This mostly just cleans up some nonorthogonality.</p>
-
-<p>When we get support for ARB_texture_view, this becomes actually useful – texture views can only be made from immutable-format textures.</p>
-
-<h3 id="still-in-the-pipeline">Still in the pipeline:</h3>
-
-<h4 id="arbtexturegather-in-review-for-mesa-92-for-gl40">ARB_texture_gather (In review; for Mesa 9.2; for GL4.0)</h4>
-
-<p>So far, I have the Ivybridge stuff mostly behaving itself; Sandybridge is full of weird restrictions so it might not fly at all.</p>
-
-<h3 id="stuff-id-like-to-build-in-a-rough-priority-order">Stuff I’d like to build, in a rough priority order:</h3>
-
-<h4 id="glsl-130-on-cantiga-ironlake">GLSL 1.30 on Cantiga, Ironlake</h4>
-<p>This needs to happen for Team Fortress 2 to work. Ref FDO bug #59187.</p>
-
-<h4 id="core-profile-subset-of-extdirectstateaccess">Core profile subset of EXT_direct_state_access</h4>
-<p>This extension makes GL much less error-prone. The full thing is pretty nuts – legacy matrix stack junk, etc – but the subset that makes sense in the core profile is probably not too bad, and would allow some nice cleanups in app code. NV/AMD already expose this, Mesa is the last big implementation not to.</p>
-
-<h4 id="arbtextureview">ARB_texture_view</h4>
-<p>This allows texture objects to share their backing image data, but have different (compatible) internalformats. Looks easy enough to do.</p>
-
-<h4 id="arbshaderatomiccounters">ARB_shader_atomic_counters</h4>
-<p>This is real GL4.x stuff – atomic read/increment/decrement of counters within a buffer object. I can see how to do this on at least Ivybridge; it’s possible that Sandybridge has all the required machinery as well. Eric’s shadertime support is a useful example – ARB_shader_atomic_counters is similar but exposes this machinery to the GL app.</p>
-
-<h4 id="layered-framebuffer-attachment-support">Layered framebuffer attachment support</h4>
-<p>This is one of the neat things we get with geometry shader support in 3.2; an entire complex texture (cubemap, or array texture) can be bound as a framebuffer attachment, and the GS can direct primitives to particular layers.</p>
-
-<p>There’s an AMD vendor extension for allowing the VS to direct primitives [following the provoking vertex convention] to a particular layer which might be implementable in lieu of having real GS support, but the layered rendering machinery would need to be extracted from the GS extensions (or GL3.2) where it’s currently defined.</p>
 
     </div>
     <div id="sidebar">
       <h2>chrisf.geek.nz</h2>
       <ul>
         <li>Free software developer</li>
-        <li>Perl, Python, C, C++, C#, GLSL, SQL</li>
+        <li>C, C++ and other things</li>
         <li>Cranky <a href="http://open-ra.org">OpenRA</a> maintainer</li>
-        <li>Graphics driver guy</li>
-        <li>Proud kiwi</li>
-        <li>Private pilot</li>
+        <li>GPU | OpenGL | Vulkan</li>
+        <li>NZ PPL + MEIR</li>
       </ul>
       <h2>Elsewhere</h2>
       <ul>
         <li>on <a href="http://github.com/chrisforbes">Github</a></li>
         <li>chrisf on <a href="irc://chat.freenode.net/#openra">Freenode</a></li>
         <li><a href="mailto:chrisf@ijw.co.nz">Email</a></li>
+	<li><a href="https://twitter.com/ijw_chrisf">@ijw_chrisf</a></li>
         <a href='https://www.ohloh.net/accounts/114913?ref=Detailed' target='_blank'>
           <img alt='Ohloh profile for Chris Forbes' border='0' src='https://www.ohloh.net/accounts/114913/widgets/account_detailed.gif' width='200' />
         </a>
